@@ -1,0 +1,71 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: jupyter-notebook
+  namespace: jupyter
+  labels:
+    deploy: jupyter-notebook
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: jupyter-notebook
+  template:
+    metadata:
+      labels:
+        app: jupyter-notebook
+    spec:
+      containers:
+      - name: minimal-notebook
+        image: jupyter/minimal-notebook:latest
+        volumeMounts:
+          - mountPath: /home/jovyan
+            name: jupyter-volume
+        ports:
+        - containerPort: 8888
+        command: ["start-notebook.sh"]
+        args: ["--NotebookApp.token='wiggler'", "--NotebookApp.base_url=/notebook"]
+      volumes:
+        - name: jupyter-volume
+          hostPath:
+            path: /Users/raynear/Project/var/jupyter
+            type: Directory
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: jupyter-notebook
+  namespace: jupyter
+  annotations:
+spec:
+  selector:
+    app: jupyter-notebook
+  ports:
+  - protocol: TCP
+    port: 8888
+    targetPort: 8888
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: jupyter-notebook
+  namespace: jupyter
+  annotations:
+    kubernetes.io/tls-acme: "true"
+    kubernetes.io/ingress.class: "nginx"
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/configuration-snippet: |
+      rewrite ^/notebook/(.*)$ /$1 break;
+spec:
+  rules:
+  - host: raynear.iptime.org
+    http:
+      paths:
+      - path: /notebook
+        backend:
+          serviceName: jupyter-notebook
+          servicePort: 8888
+  tls:
+  - secretName: tls
+    hosts:
+      - raynear.iptime.org

@@ -1,0 +1,22 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: docker-desktop-es-http
+  namespace: elk
+  annotations:
+    kubernetes.io/tls-acme: "true"
+    kubernetes.io/ingress.class: "nginx"
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+spec:
+  rules:
+  - host: raynear.iptime.org
+    http:
+      paths:
+      - path: /elastic(/|$)(.*)
+        backend:
+          serviceName: docker-desktop-es-http
+          servicePort: 9200
+  tls:
+  - secretName: tls-reg
+    hosts:
+      - raynear.iptime.org

@@ -1,0 +1,1 @@
+sudo kubectl create secret tls tls --key=/etc/letsencrypt/live/raynear.iptime.org/privkey.pem --cert=/etc/letsencrypt/live/raynear.iptime.org/cert.pem

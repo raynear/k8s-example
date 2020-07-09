@@ -1,0 +1,19 @@
+proxy:
+  secretToken: "978e4ef141305a9fe17e626eb28ef1aba482be6bd43937f9dcf936a71c5cf4e1"
+ingress:
+  enabled: true
+  hosts:
+    - raynear.iptime.org
+  tls:
+    - hosts:
+      - raynear.iptime.org
+      secretName: tls
+hub:
+  baseUrl: /jupyter
+  auth:
+    type: dummy
+    dumy:
+      password: 'wiggler'
+    whitelist:
+      users:
+        - raynear
